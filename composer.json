@@ -13,6 +13,11 @@
             "name": "Jorge Javier Leon",
             "email": "jorgejavierleon@gmail.com",
             "role": "Developer"
+        },
+        {
+            "name": "Alver Grisales",
+            "email": "viga.23@hotmail.com",
+            "role": "Developer"
         }
     ],
     "require": {

@@ -4,10 +4,13 @@
 namespace Nextdots\FractalResponses;
 
 use League\Fractal\TransformerAbstract;
+use Illuminate\Http\Response as IlluminateResponse;
 
 trait FractalControllerTrait
 {
-    protected $statusCode = 200;
+    protected $statusCode = IlluminateResponse::HTTP_OK;
+    protected $headers = [];
+    protected $message = 'success';
 
     /**
      * @return int
@@ -18,6 +21,22 @@ trait FractalControllerTrait
     }
 
     /**
+     * @return array
+     */
+    protected function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
      * @param int $statusCode
      * @return $this
      */
@@ -25,6 +44,22 @@ trait FractalControllerTrait
     {
         $this->statusCode = $statusCode;
         return $this;
+    }
+
+    /**
+     * @param array $headers
+     */
+    protected function setHeaders(array $headers)
+    {
+        $this->headers = $headers;
+    }
+
+    /**
+     * @param $message
+     */
+    protected function setMessage($message)
+    {
+        $this->message;
     }
 
     /**
@@ -64,28 +99,31 @@ trait FractalControllerTrait
     {
         return $this->respondWithArray([
             'error' => [
-                'http_code' => $this->statusCode,
+                'http_code' => $this->getStatusCode(),
                 'message' => $message,
             ]
         ]);
     }
 
     /**
-     * @param string $message
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function errorNotFound($message = 'Resource not found')
+    protected function errorNotFound()
     {
-        return $this->setStatusCode(404)->respondWithError($message);
+        return $this->setStatusCode(IlluminateResponse::HTTP_NOT_FOUND)->respondWithError($this->getMessage());
     }
 
     /**
      * @param array $array
-     * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function respondWithArray(array $array, array $headers = [])
+    protected function respondWithArray(array $array)
     {
-        return response()->json($array, $this->statusCode, $headers);
+        $data = [
+            'code' => $this->getStatusCode(),
+            'message' => $this->getMessage(),
+            $array,
+        ];
+        return response()->json($data, $this->statusCode, $this->getHeaders());
     }
 }
