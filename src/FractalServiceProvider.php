@@ -24,7 +24,7 @@ class FractalServiceProvider extends ServiceProvider
         $this->app->bind('Nextdots\FractalResponses\FractalResponses', function ($app) {
             $manager = new Manager();
             $serializer = $app['League\Fractal\Serializer\SerializerAbstract'];
-            return new FractalResponse($manager, $serializer, $app['request']);
+            return new FractalResponses($manager, $serializer, $app['request']);
         });
     }
 }
