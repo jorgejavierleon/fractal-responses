@@ -150,8 +150,8 @@ trait FractalControllerTrait
         $data = [
             'code' => $this->getStatusCode(),
             'message' => $this->getMessage(),
-            $array,
         ];
-        return response()->json($data, $this->statusCode, $this->getHeaders());
+        $data = array_merge($data, $array);
+        return response()->json($data, $this->getStatusCode(), $this->getHeaders());
     }
 }
