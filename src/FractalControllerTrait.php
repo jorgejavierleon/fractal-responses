@@ -11,13 +11,14 @@ trait FractalControllerTrait
     protected $statusCode = IlluminateResponse::HTTP_OK;
     protected $headers = [];
     protected $message = 'success';
+    protected $errors = [];
 
     /**
      * @return int
      */
     protected function getStatusCode()
     {
-        return $this->statusCode;
+        return property_exists($this, 'sendStatusCode') ? $this->sendStatusCode : $this->statusCode;
     }
 
     /**
@@ -25,7 +26,7 @@ trait FractalControllerTrait
      */
     protected function getHeaders()
     {
-        return $this->headers;
+        return property_exists($this, 'sendHeaders') ? $this->sendHeaders : $this->headers;
     }
 
     /**
@@ -33,7 +34,15 @@ trait FractalControllerTrait
      */
     protected function getMessage()
     {
-        return $this->message;
+        return property_exists($this, 'sendMessage') ? $this->sendMessage : $this->message;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getErrors()
+    {
+        return property_exists($this, 'sendErrors') ? $this->sendErrors : $this->errors;
     }
 
     /**
@@ -43,7 +52,6 @@ trait FractalControllerTrait
     protected function setStatusCode($statusCode)
     {
         $this->statusCode = $statusCode;
-        return $this;
     }
 
     /**
@@ -60,6 +68,14 @@ trait FractalControllerTrait
     protected function setMessage($message)
     {
         $this->message;
+    }
+
+    /**
+     * @param array $errors
+     */
+    protected function setErrors(array $errors)
+    {
+        $this->errors = $errors;
     }
 
     /**
@@ -111,6 +127,18 @@ trait FractalControllerTrait
     protected function errorNotFound()
     {
         return $this->setStatusCode(IlluminateResponse::HTTP_NOT_FOUND)->respondWithError($this->getMessage());
+    }
+
+    /**
+     * @return array
+     */
+    protected function sendErrors()
+    {
+        return [
+            'code' => $this->getStatusCode(),
+            'message' => $this->getMessage(),
+            'errors' => $this->getErrors(),
+        ];
     }
 
     /**
