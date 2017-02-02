@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Nextdots\FractalResponses;
 
 use League\Fractal\TransformerAbstract;
@@ -18,7 +17,7 @@ trait FractalControllerTrait
      */
     protected function getStatusCode()
     {
-        return property_exists($this, 'sendStatusCode') ? $this->sendStatusCode : $this->statusCode;
+        return $this->statusCode;
     }
 
     /**
@@ -26,7 +25,7 @@ trait FractalControllerTrait
      */
     protected function getHeaders()
     {
-        return property_exists($this, 'sendHeaders') ? $this->sendHeaders : $this->headers;
+        return $this->headers;
     }
 
     /**
@@ -34,7 +33,7 @@ trait FractalControllerTrait
      */
     protected function getMessage()
     {
-        return property_exists($this, 'sendMessage') ? $this->sendMessage : $this->message;
+        return $this->message;
     }
 
     /**
@@ -42,40 +41,7 @@ trait FractalControllerTrait
      */
     protected function getErrors()
     {
-        return property_exists($this, 'sendErrors') ? $this->sendErrors : $this->errors;
-    }
-
-    /**
-     * @param int $statusCode
-     * @return $this
-     */
-    protected function setStatusCode($statusCode)
-    {
-        $this->statusCode = $statusCode;
-    }
-
-    /**
-     * @param array $headers
-     */
-    protected function setHeaders(array $headers)
-    {
-        $this->headers = $headers;
-    }
-
-    /**
-     * @param $message
-     */
-    protected function setMessage($message)
-    {
-        $this->message;
-    }
-
-    /**
-     * @param array $errors
-     */
-    protected function setErrors(array $errors)
-    {
-        $this->errors = $errors;
+        return $this->errors;
     }
 
     /**
@@ -108,48 +74,38 @@ trait FractalControllerTrait
     }
 
     /**
-     * @param $message
+     * @param int|null $code
+     * @param string|null $message
+     * @param array $errors
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function respondWithError($message)
+    protected function respondWithError(int $code = null, string $message = null, array $errors = [])
     {
         return $this->respondWithArray([
-            'error' => [
-                'http_code' => $this->getStatusCode(),
-                'message' => $message,
-            ]
+            'code' => $code ? $this->statusCode = $code : $this->getStatusCode(),
+            'message' => $message ? $this->message = $message : $this->getMessage(),
+            'error' => $errors ? $this->errors = $errors : $this->getErrors(),
         ]);
     }
 
     /**
+     * @param string|null $message
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function errorNotFound()
+    protected function errorNotFound(string $message = null)
     {
-        return $this->setStatusCode(IlluminateResponse::HTTP_NOT_FOUND)->respondWithError($this->getMessage());
-    }
-
-    /**
-     * @return array
-     */
-    protected function sendErrors()
-    {
-        return [
-            'code' => $this->getStatusCode(),
-            'message' => $this->getMessage(),
-            'errors' => $this->getErrors(),
-        ];
+        return $this->respondWithError(IlluminateResponse::HTTP_NOT_FOUND, $message);
     }
 
     /**
      * @param array $array
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithArray(array $array)
+    protected function respondWithArray(array $array = [])
     {
         $data = [
-            'code' => $this->getStatusCode(),
-            'message' => $this->getMessage(),
+            'code' => $this->statusCode,
+            'message' => $this->message,
         ];
         $data = array_merge($data, $array);
         return response()->json($data, $this->getStatusCode(), $this->getHeaders());
